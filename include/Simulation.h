@@ -13,11 +13,12 @@ private:
     std::vector<Vehicle*> vehicles;
     std::vector<TrafficLight> trafficLights;
     std::vector<Road> roads;
+    unsigned int screenWidth;
     float elapsedTime;
 
 public:
     // Constructor
-    Simulation();
+    Simulation(unsigned int screenWidth);
 
     // Destructor
     ~Simulation();
@@ -28,6 +29,8 @@ public:
 private:
     // Handles events such as window closure
     void handleEvents();
+
+    void spawnCars(float deltaTime);
 
     // Updates the simulation state
     void update(float deltaTime);

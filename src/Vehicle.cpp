@@ -1,16 +1,19 @@
 #include "Vehicle.h"
 
-Vehicle::Vehicle(std::string plate, sf::Vector2f position, sf::Color color, float initialSpeed)
-    : numberPlate(plate), speed(initialSpeed), challanActive(false)
+Vehicle::Vehicle(std::string plate, sf::Vector2f position, sf::Color color, float initialSpeed, sf::Vector2i direction)
+    : numberPlate(plate), speed(initialSpeed), challanActive(false), direction(direction)
 {
-    shape.setSize(sf::Vector2f(40.f, 20.f));
+    if (direction.x == 0)
+        shape.setSize(sf::Vector2f(20.f, 40.f));
+    else
+        shape.setSize(sf::Vector2f(40.f, 20.f));
     shape.setPosition(position);
     shape.setFillColor(color);
 }
 
 void Vehicle::updatePosition(float deltaTime)
 {
-    shape.move(speed * deltaTime, 0);
+    shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
 }
 
 void Vehicle::increaseSpeed(float increment)
@@ -33,11 +36,11 @@ bool Vehicle::isChallanActive() const
     return challanActive;
 }
 
-LightVehicle::LightVehicle(std::string plate, sf::Vector2f position)
-    : Vehicle(plate, position, sf::Color::Cyan, 30.f) {}
+LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
+    : Vehicle(plate, position, sf::Color::Cyan, 30.f, direction) {}
 
-HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position)
-    : Vehicle(plate, position, sf::Color::Blue, 20.f) {}
+HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
+    : Vehicle(plate, position, sf::Color::Blue, 20.f, direction) {}
 
-EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position)
-    : Vehicle(plate, position, sf::Color::Red, 50.f) {}
+EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
+    : Vehicle(plate, position, sf::Color::Red, 50.f, direction) {}
