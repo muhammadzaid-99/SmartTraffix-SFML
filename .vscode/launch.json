@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Run SmartTraffix",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/SmartTraffix.exe",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "environment": [],
+        "externalConsole": false
+      }
+    ]
+  }
+  

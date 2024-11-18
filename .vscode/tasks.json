@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "type": "shell",
+        "command": "g++",
+        "args": [
+          "-std=c++17",
+          "-I",
+          "${workspaceFolder}/include",
+          "-L",
+          "${workspaceFolder}/lib",
+          "${workspaceFolder}/src/*.cpp",
+          "${workspaceFolder}/main.cpp",
+          "-o",
+          "${workspaceFolder}/build/SmartTraffix.exe",
+          "-lsfml-graphics",
+          "-lsfml-window",
+          "-lsfml-system"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
