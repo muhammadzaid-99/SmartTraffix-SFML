@@ -3,9 +3,9 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
 {
     unsigned sW = screenWidth;
     // Initialize roads cross-section
-    roads.emplace_back(sf::Vector2f(0.f, sW / 2.f - 55), false);
+    roads.emplace_back(sf::Vector2f(0.f, sW / 2.f - 105), false);
     roads.emplace_back(sf::Vector2f(0.f, sW / 2.f + 5), false);
-    roads.emplace_back(sf::Vector2f(sW / 2.f - 55, 0.f), true); 
+    roads.emplace_back(sf::Vector2f(sW / 2.f - 105, 0.f), true); 
     roads.emplace_back(sf::Vector2f(sW / 2.f + 5, 0.f), true); 
 
     // Initialize traffic lights
@@ -18,7 +18,7 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
     vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(750.f, 360.f), sf::Vector2i(-1, 0)));
     vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(0.f, 420.f), sf::Vector2i(1, 0)));
     vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1)));
-    vehicles.push_back(new EmergencyVehicle("EV1", sf::Vector2f(150.f, 420.f), sf::Vector2i(1, 0)));
+    vehicles.push_back(new EmergencyVehicle("EV1/", sf::Vector2f(150.f, 420.f), sf::Vector2i(1, 0)));
 }
 
 Simulation::~Simulation()
@@ -84,7 +84,11 @@ void Simulation::render()
 
     for (const auto &road : roads)
     {
-        window.draw(road.getShape());
+        window.draw(road.getRoadSurface());
+    }
+    for (const auto &road : roads)
+    {
+        window.draw(road.getRoadLines());
     }
     // // Draw traffic lights
     // for (const auto &light : trafficLights)
