@@ -1,2 +1,3 @@
-Compile using WinLibs MSVCRT 13.1.0 (64-bit)
-https://github.com/brechtsanders/winlibs_mingw/releases/download/13.1.0-16.0.5-11.0.0-msvcrt-r5/winlibs-x86_64-posix-seh-gcc-13.1.0-mingw-w64msvcrt-11.0.0-r5.7z
+For Ubuntu:
+
+sudo apt install gcc g++ libsfml-dev

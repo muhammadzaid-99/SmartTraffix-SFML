@@ -1,30 +1,29 @@
 {
-    "version": "2.0.0",
-    "tasks": [
+  "version": "2.0.0",
+  "tasks": [
       {
-        "label": "build",
-        "type": "shell",
-        "command": "g++",
-        "args": [
-          "-std=c++17",
-          "-I",
-          "${workspaceFolder}/include",
-          "-L",
-          "${workspaceFolder}/lib",
-          "${workspaceFolder}/src/*.cpp",
-          "${workspaceFolder}/main.cpp",
-          "-o",
-          "${workspaceFolder}/build/SmartTraffix.exe",
-          "-lsfml-graphics",
-          "-lsfml-window",
-          "-lsfml-system"
-        ],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
+          "label": "Build with SFML",
+          "type": "shell",
+          "command": "g++",
+          "args": [
+              "-std=c++17",
+              "-g",
+              "${workspaceFolder}/src/*.cpp",
+              "${workspaceFolder}/main.cpp",
+              "-o",
+              "${workspaceFolder}/build/SmartTraffix",
+              "-I", "${workspaceFolder}/include",
+              "-L", "${workspaceFolder}/lib",
+              "-lsfml-graphics",
+              "-lsfml-window",
+              "-lsfml-system"
+          ],
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "problemMatcher": ["$gcc"],
+          "detail": "Compile project with SFML."
       }
-    ]
-  }
-  
+  ]
+}
