@@ -1,4 +1,5 @@
 #include "Simulation.h"
+#include <random>
 Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), elapsedTime(0.f)
 {
     unsigned sW = screenWidth;
@@ -13,18 +14,22 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
     // trafficLights.emplace_back(sf::Vector2f(370.f, 450.f)); // South
     // trafficLights.emplace_back(sf::Vector2f(350.f, 370.f)); // West
     // trafficLights.emplace_back(sf::Vector2f(450.f, 370.f)); // East
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.f, 0.f, LightVehicle("LV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1))});
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, LightVehicle("LV1", sf::Vector2f(360.f, 750.f), sf::Vector2i(0, -1))});
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, LightVehicle("LV1", sf::Vector2f(750.f, 420.f), sf::Vector2i(-1, 0))});
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.5f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
-    // vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
-    // vehicleSpawnTimers.push_back(VehicleSpawnTimer{20.f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
+    
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.f, 0.f, 1.0, LightVehicle("LTV", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1))});  // from north
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 1.0, LightVehicle("LTV", sf::Vector2f(360.f, 760.f), sf::Vector2i(0, -1))}); // from south
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.5f, 0.f, 1.0,LightVehicle("LTV", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))}); // from east
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 1.0, LightVehicle("LTV", sf::Vector2f(760.f, 420.f), sf::Vector2i(-1, 0))}); // from west
+    
 
-    // Initialize vehicles
-    // vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(750.f, 360.f), sf::Vector2i(-1, 0)));
-    // vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(0.f, 420.f), sf::Vector2i(1, 0)));
-    // vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1)));
-    // vehicles.push_back(new EmergencyVehicle("EV1/", sf::Vector2f(150.f, 420.f), sf::Vector2i(1, 0)));
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 0.2f, EmergencyVehicle("EV", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1))});  // from north
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 0.05f, EmergencyVehicle("EV", sf::Vector2f(360.f, 760.f), sf::Vector2i(0, -1))}); // from south
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{20.f, 0.f, 0.1f, EmergencyVehicle("EV", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))}); // from east
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 0.3f, EmergencyVehicle("EV", sf::Vector2f(760.f, 420.f), sf::Vector2i(-1, 0))}); // from west
+
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, HeavyVehicle("HTV", sf::Vector2f(470.f, 0.f), sf::Vector2i(0, 1))});  // from north
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, HeavyVehicle("HTV", sf::Vector2f(310.f, 760.f), sf::Vector2i(0, -1))}); // from south
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, HeavyVehicle("HTV", sf::Vector2f(0.f, 310.f), sf::Vector2i(1, 0))}); // from east
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, HeavyVehicle("HTV", sf::Vector2f(760.f, 470.f), sf::Vector2i(-1, 0))}); // from west
 }
 
 Simulation::~Simulation()
@@ -58,17 +63,17 @@ void Simulation::run()
 
 void Simulation::spawnVehicles(float deltaTime)
 {
-    // if (elapsedTime >= 5.f) {
-    //     vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0)));
-    //     elapsedTime = 0.f;
-    // }
 
     for (auto &timer : vehicleSpawnTimers)
     {
         timer.elapsed += deltaTime;
+        float prob = pg.getRandomProb();
+        std::cout << prob << std::endl;
+
         if (timer.elapsed >= timer.interval) {
             timer.elapsed -= timer.interval;
-            addVehicle(timer.vehicle);
+            if (prob <= timer.probability)
+                addVehicle(timer.vehicle);
         }
     }
 }

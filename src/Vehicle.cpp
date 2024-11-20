@@ -48,7 +48,7 @@ LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2
     : Vehicle(plate, position, sf::Color::Cyan, 40.f, direction) {}
 
 HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
-    : Vehicle(plate, position, sf::Color::Blue, 20.f, direction) {}
+    : Vehicle(plate, position, sf::Color::Blue, 5.f, direction) {}
 
 EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
     : Vehicle(plate, position, sf::Color::Red, 50.f, direction) {}

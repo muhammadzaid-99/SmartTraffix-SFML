@@ -3,6 +3,7 @@
 
 #include "Vehicle.h"
 #include "TrafficLight.h"
+#include "ProbabilityGenerator.h"
 #include "Road.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -10,6 +11,7 @@
 struct VehicleSpawnTimer {
     float interval;   // The spawn interval for the timer
     float elapsed;    // The elapsed time for this timer
+    float probability; // The probability of spawning a vehicle
     Vehicle vehicle;
 };
 
@@ -22,6 +24,7 @@ private:
     unsigned int screenWidth;
     float elapsedTime;
     std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
+    ProbabilityGenerator pg;
 
 public:
     // Constructor
