@@ -5,20 +5,26 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
     // Initialize roads cross-section
     roads.emplace_back(sf::Vector2f(0.f, sW / 2.f - 105), false);
     roads.emplace_back(sf::Vector2f(0.f, sW / 2.f + 5), false);
-    roads.emplace_back(sf::Vector2f(sW / 2.f - 105, 0.f), true); 
-    roads.emplace_back(sf::Vector2f(sW / 2.f + 5, 0.f), true); 
+    roads.emplace_back(sf::Vector2f(sW / 2.f - 105, 0.f), true);
+    roads.emplace_back(sf::Vector2f(sW / 2.f + 5, 0.f), true);
 
     // Initialize traffic lights
     // trafficLights.emplace_back(sf::Vector2f(370.f, 350.f)); // North
     // trafficLights.emplace_back(sf::Vector2f(370.f, 450.f)); // South
     // trafficLights.emplace_back(sf::Vector2f(350.f, 370.f)); // West
     // trafficLights.emplace_back(sf::Vector2f(450.f, 370.f)); // East
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.f, 0.f, LightVehicle("LV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1))});
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, LightVehicle("LV1", sf::Vector2f(360.f, 750.f), sf::Vector2i(0, -1))});
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, LightVehicle("LV1", sf::Vector2f(750.f, 420.f), sf::Vector2i(-1, 0))});
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.5f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
+    // vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
+    // vehicleSpawnTimers.push_back(VehicleSpawnTimer{20.f, 0.f, LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0))});
 
     // Initialize vehicles
-    vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(750.f, 360.f), sf::Vector2i(-1, 0)));
-    vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(0.f, 420.f), sf::Vector2i(1, 0)));
-    vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1)));
-    vehicles.push_back(new EmergencyVehicle("EV1/", sf::Vector2f(150.f, 420.f), sf::Vector2i(1, 0)));
+    // vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(750.f, 360.f), sf::Vector2i(-1, 0)));
+    // vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(0.f, 420.f), sf::Vector2i(1, 0)));
+    // vehicles.push_back(new HeavyVehicle("HV1", sf::Vector2f(420.f, 0.f), sf::Vector2i(0, 1)));
+    // vehicles.push_back(new EmergencyVehicle("EV1/", sf::Vector2f(150.f, 420.f), sf::Vector2i(1, 0)));
 }
 
 Simulation::~Simulation()
@@ -29,10 +35,14 @@ Simulation::~Simulation()
     }
 }
 
+void Simulation::addVehicle(const Vehicle& vehicle)
+{
+    vehicles.push_back(new Vehicle(vehicle));
+}
+
 void Simulation::run()
 {
     sf::Clock clock;
-    
 
     while (window.isOpen())
     {
@@ -40,16 +50,26 @@ void Simulation::run()
         elapsedTime += deltaTime;
 
         handleEvents();
-        spawnCars(deltaTime);
+        spawnVehicles(deltaTime);
         update(deltaTime);
         render();
     }
 }
 
-void Simulation::spawnCars(float deltaTime) {
-    if (elapsedTime >= 5.f) {
-        vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0)));
-        elapsedTime = 0.f;
+void Simulation::spawnVehicles(float deltaTime)
+{
+    // if (elapsedTime >= 5.f) {
+    //     vehicles.push_back(new LightVehicle("LV1", sf::Vector2f(0.f, 360.f), sf::Vector2i(1, 0)));
+    //     elapsedTime = 0.f;
+    // }
+
+    for (auto &timer : vehicleSpawnTimers)
+    {
+        timer.elapsed += deltaTime;
+        if (timer.elapsed >= timer.interval) {
+            timer.elapsed -= timer.interval;
+            addVehicle(timer.vehicle);
+        }
     }
 }
 
@@ -101,7 +121,6 @@ void Simulation::render()
     {
         window.draw(vehicle->getShape());
     }
-
 
     window.display();
 }

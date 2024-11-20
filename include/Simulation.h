@@ -7,6 +7,12 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+struct VehicleSpawnTimer {
+    float interval;   // The spawn interval for the timer
+    float elapsed;    // The elapsed time for this timer
+    Vehicle vehicle;
+};
+
 class Simulation {
 private:
     sf::RenderWindow window;
@@ -15,6 +21,7 @@ private:
     std::vector<Road> roads;
     unsigned int screenWidth;
     float elapsedTime;
+    std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
 
 public:
     // Constructor
@@ -25,12 +32,13 @@ public:
 
     // Runs the simulation
     void run();
+    void addVehicle(const Vehicle& vehicle);
 
 private:
     // Handles events such as window closure
     void handleEvents();
 
-    void spawnCars(float deltaTime);
+    void spawnVehicles(float deltaTime);
 
     // Updates the simulation state
     void update(float deltaTime);

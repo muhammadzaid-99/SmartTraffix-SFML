@@ -16,6 +16,14 @@ void Vehicle::updatePosition(float deltaTime)
     shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
 }
 
+const sf::Vector2f Vehicle::getPosition() const {
+    return shape.getPosition();
+}
+
+const sf::Vector2i Vehicle::getDirection() const {
+    return direction;
+}
+
 void Vehicle::increaseSpeed(float increment)
 {
     speed += increment;
@@ -37,7 +45,7 @@ bool Vehicle::isChallanActive() const
 }
 
 LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
-    : Vehicle(plate, position, sf::Color::Cyan, 30.f, direction) {}
+    : Vehicle(plate, position, sf::Color::Cyan, 40.f, direction) {}
 
 HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction)
     : Vehicle(plate, position, sf::Color::Blue, 20.f, direction) {}
