@@ -1,3 +1,6 @@
+#ifndef PROBABILITYGENERATOR_H
+#define PROBABILITYGENERATOR_H
+
 #include <random>
 #include <iostream>
 
@@ -17,3 +20,4 @@ public:
     }
 };
 
+#endif

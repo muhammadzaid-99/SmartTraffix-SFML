@@ -31,6 +31,8 @@ public:
     // Checks if a challan is active for the vehicle
     bool isChallanActive() const;
 
+    void setDirection(sf::Vector2i);
+
     const sf::Vector2f getPosition() const ;
     const sf::Vector2i getDirection() const;
 };
