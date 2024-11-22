@@ -128,6 +128,8 @@ void Simulation::update(float deltaTime)
             slv->updatePosition(deltaTime);
         }
 
+        road.second->removeLeftVehicles();
+
         const auto &fastLane = road.second->getFastLaneVehicles();
 
         // Adjust speeds to ensure safe distances

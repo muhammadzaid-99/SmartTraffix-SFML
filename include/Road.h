@@ -28,6 +28,8 @@ public:
     const sf::RectangleShape& getRoadLines() const;
     const std::vector<Vehicle*>& getFastLaneVehicles() const;
     const std::vector<Vehicle*>& getSlowLaneVehicles() const;
+
+    void removeLeftVehicles();
 };
 
 #endif
