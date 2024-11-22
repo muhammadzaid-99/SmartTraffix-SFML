@@ -54,19 +54,19 @@ public:
 // Derived class for Light Vehicle
 class LightVehicle : public Vehicle {
 public:
-    LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed);
+    LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color);
 };
 
 // Derived class for Heavy Vehicle
 class HeavyVehicle : public Vehicle {
 public:
-    HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed);
+    HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color);
 };
 
 // Derived class for Emergency Vehicle
 class EmergencyVehicle : public Vehicle {
 public:
-    EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed);
+    EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color);
 };
 
 #endif // VEHICLE_H

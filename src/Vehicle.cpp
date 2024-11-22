@@ -87,8 +87,8 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
     sf::Vector2f v2NextPos = v2Pos + sf::Vector2f(v2Speed * direction.x, v2Speed * direction.y);
 
     // Calculate safety margin in each direction
-    float safetyMarginX = (v1Size.x + v2Size.x) / 2;
-    float safetyMarginY = (v1Size.y + v2Size.y) / 2;
+    float safetyMarginX = v1Size.x;
+    float safetyMarginY = v1Size.y;
 
     // Check if vehicles overlap in the next positions
     bool isSafeX = std::abs(v1NextPos.x - v2NextPos.x) > safetyMarginX;
@@ -99,20 +99,20 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
 }
  
 // suppose road is SCREEN_WIDTH / 8 metres long (100m)
-LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed)
-    : Vehicle(plate, position, sf::Color::Cyan, initialSpeed, maxSpeed, direction) {
+LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+    : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 16.6667f * 8; // 60km/h = 16.667m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
     }
 
-HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed)
-    : Vehicle(plate, position, sf::Color::Blue, initialSpeed, maxSpeed, direction) {
+HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+    : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 11.1111f * 8; // 40km/h = 11.11m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
     }
 
-EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed)
-    : Vehicle(plate, position, sf::Color::Red, initialSpeed, maxSpeed, direction) {
+EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+    : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 22.2222f * 8; // 80km/h = 22.22m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
     }

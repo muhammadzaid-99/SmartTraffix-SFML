@@ -14,6 +14,8 @@ private:
     sf::Vector2i direction;
     sf::Vector2f fastLaneVehiclesInitPos;
     sf::Vector2f slowLaneVehiclesInitPos;
+    sf::Vector2f fastLaneVehiclesFinalPos;
+    sf::Vector2f slowLaneVehiclesFinalPos;
     std::vector<Vehicle*> fastLaneVehicles;
     std::vector<Vehicle*> slowLaneVehicles;
     ProbabilityGenerator pg;
