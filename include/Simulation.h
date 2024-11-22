@@ -11,21 +11,24 @@
 #include <random>
 #include <unordered_map>
 
-
-struct VehicleSpawnTimer {
-    float interval;   // The spawn interval for the timer
-    float elapsed;    // The elapsed time for this timer
+struct VehicleSpawnTimer
+{
+    float interval;    // The spawn interval for the timer
+    float elapsed;     // The elapsed time for this timer
     float probability; // The probability of spawning a vehicle
     RoadEdge roadEdge;
     VehicleType vehicleType;
 };
 
-class Simulation {
+class Simulation
+{
 private:
+    sf::Font font;
+    sf::Text timeText;
     sf::RenderWindow window;
-    std::vector<Vehicle*> vehicles;
+    std::vector<Vehicle *> vehicles;
     std::vector<TrafficLight> trafficLights;
-    std::unordered_map<RoadEdge, Road*> roads;
+    std::unordered_map<RoadEdge, Road *> roads;
     unsigned int screenWidth;
     float elapsedTime;
     std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
@@ -53,6 +56,8 @@ private:
 
     // Renders the simulation
     void render();
+
+    void initTimeText();
 };
 
 #endif // SIMULATION_H

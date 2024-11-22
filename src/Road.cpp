@@ -44,7 +44,7 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
         }
     }
 
-    roadLines.setFillColor(sf::Color::Red);
+    roadLines.setFillColor(sf::Color(128, 128, 128)); // gray color
 }
 
 void Road::addVehicle(std::string numberPlate, VehicleType vt)

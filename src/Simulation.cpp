@@ -3,6 +3,8 @@
 Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), elapsedTime(0.f)
 {
     unsigned sW = screenWidth;
+    initTimeText();
+    
     // Initialize roads cross-section
     roads[RoadEdge::EAST] = new Road(sf::Vector2f(0.f, sW / 2.f - 105), false, sf::Vector2i(1, 0));
     roads[RoadEdge::WEST] = new Road(sf::Vector2f(0.f, sW / 2.f + 5), false, sf::Vector2i(-1, 0));
@@ -45,20 +47,34 @@ void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, std::str
     roads[roadEdge]->addVehicle(numberPlate, vehicleType);
 }
 
+void Simulation::initTimeText() {
+    if (!font.loadFromFile("assets/fonts/arial.ttf"))
+    {
+        std::cerr << "Error loading font" << std::endl;
+    }
+    
+    timeText.setFont(font);
+    timeText.setCharacterSize(18);
+    timeText.setFillColor(sf::Color::White);
+    timeText.setPosition(10.f, 10.f);
+}
+
 void Simulation::run()
 {
-    sf::Clock clock;
+    sf::Clock simulationClock;
 
     while (window.isOpen())
     {
-        float deltaTime = clock.restart().asSeconds();
+        float deltaTime = simulationClock.restart().asSeconds();
         elapsedTime += deltaTime;
+        timeText.setString(sf::String("Elapsed Time: " + std::to_string(static_cast<int>(elapsedTime))) + "s");
 
         handleEvents();
         spawnVehicles(deltaTime);
         update(deltaTime);
         render();
     }
+
 }
 
 void Simulation::spawnVehicles(float deltaTime)
@@ -67,7 +83,6 @@ void Simulation::spawnVehicles(float deltaTime)
     {
         timer.elapsed += deltaTime;
         float prob = pg.getRandomProb();
-        std::cout << prob << std::endl;
 
         if (timer.elapsed >= timer.interval)
         {
@@ -119,9 +134,14 @@ void Simulation::render()
 {
     window.clear(sf::Color::Black);
 
+
     for (const auto &road : roads)
     {
         window.draw(road.second->getRoadSurface());
+    }
+    for (const auto &road : roads)
+    {
+        window.draw(road.second->getRoadLines());
     }
     for (const auto &road : roads)
     {
@@ -133,8 +153,9 @@ void Simulation::render()
         {
             window.draw(slv->getShape());
         }
-        window.draw(road.second->getRoadLines());
     }
+    // Draw time
+    window.draw(timeText);
 
     // // Draw traffic lights
     // for (const auto &light : trafficLights)
