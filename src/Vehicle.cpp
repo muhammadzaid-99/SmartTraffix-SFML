@@ -1,6 +1,6 @@
 #include "Vehicle.h"
 
-Vehicle::Vehicle(std::string plate, sf::Vector2f position, sf::Color color, float initialSpeed, float maxSpeed, sf::Vector2i direction)
+Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float initialSpeed, float maxSpeed, sf::Vector2i direction)
     : numberPlate(plate), speed(initialSpeed), maxSpeed(maxSpeed), challanActive(false), direction(direction)
 {
     if (direction.x == 0)
@@ -9,6 +9,10 @@ Vehicle::Vehicle(std::string plate, sf::Vector2f position, sf::Color color, floa
         shape.setSize(sf::Vector2f(40.f, 20.f));
     shape.setPosition(position);
     shape.setFillColor(color);
+    numberPlate.setPosition(position);
+    numberPlate.move(5, 5);
+    numberPlate.setFillColor(sf::Color::White);
+    numberPlate.setCharacterSize(10);
 
     elapsedTime = 0.f;
 }
@@ -16,6 +20,8 @@ Vehicle::Vehicle(std::string plate, sf::Vector2f position, sf::Color color, floa
 void Vehicle::updatePosition(float deltaTime)
 {
     shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
+    numberPlate.setPosition(shape.getPosition());
+    numberPlate.move(5, 5);
     elapsedTime += deltaTime;
 }
 
@@ -72,6 +78,10 @@ bool Vehicle::isChallanActive() const
     return challanActive;
 }
 
+const sf::Text& Vehicle::getNumberPlate() const {
+    return numberPlate;
+}
+
 bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) // static
 {
     // v2 is vehicle ahead
@@ -100,19 +110,19 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
 }
  
 // suppose road is SCREEN_WIDTH / 8 metres long (100m)
-LightVehicle::LightVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+LightVehicle::LightVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 16.6667f * 8; // 60km/h = 16.667m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
     }
 
-HeavyVehicle::HeavyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+HeavyVehicle::HeavyVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 11.1111f * 8; // 40km/h = 11.11m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
     }
 
-EmergencyVehicle::EmergencyVehicle(std::string plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
+EmergencyVehicle::EmergencyVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 22.2222f * 8; // 80km/h = 22.22m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);

@@ -27,8 +27,6 @@ private:
     sf::Text timeText;
     sf::Text roadLengthText;
     sf::RenderWindow window;
-    std::vector<Vehicle *> vehicles;
-    std::vector<TrafficLight> trafficLights;
     std::unordered_map<RoadEdge, Road *> roads;
     unsigned int screenWidth;
     float simulationElapsedTime;
@@ -44,7 +42,7 @@ public:
 
     // Runs the simulation
     void run();
-    void addVehicle(RoadEdge roadEdge, VehicleType vehicleType, std::string numberPlate);
+    void addVehicle(RoadEdge roadEdge, VehicleType vehicleType, sf::Text numberPlate);
 
 private:
     // Handles events such as window closure

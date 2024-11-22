@@ -35,13 +35,13 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
 
 Simulation::~Simulation()
 {
-    for (auto vehicle : vehicles)
+    for (auto &road : roads)
     {
-        delete vehicle;
+        delete road.second;
     }
 }
 
-void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, std::string numberPlate)
+void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, sf::Text numberPlate)
 {
     // vehicles.push_back(new Vehicle(vehicle));
     roads[roadEdge]->addVehicle(numberPlate, vehicleType);
@@ -93,7 +93,7 @@ void Simulation::spawnVehicles(float deltaTime)
         {
             timer.elapsed -= timer.interval;
             if (prob <= timer.probability)
-                addVehicle(timer.roadEdge, timer.vehicleType, "PlateNumber-N/A");
+                addVehicle(timer.roadEdge, timer.vehicleType, sf::Text(sf::String("LE15"), font));
         }
     }
 }
@@ -110,18 +110,7 @@ void Simulation::handleEvents()
 
 void Simulation::update(float deltaTime)
 {
-    // Update traffic lights
-    for (auto &light : trafficLights)
-    {
-        light.update(deltaTime);
-    }
-
-    // Update vehicle positions
-    // for (auto vehicle : vehicles)
-    // {
-    //     vehicle->updatePosition(deltaTime);
-    // }
-
+    
     for (const auto &road : roads)
     {
         for (const auto &flv : road.second->getFastLaneVehicles())
@@ -134,6 +123,7 @@ void Simulation::update(float deltaTime)
         }
 
         road.second->removeLeftVehicles();
+        road.second->updateTrafficLight(deltaTime);
 
         const auto &fastLane = road.second->getFastLaneVehicles();
 
@@ -184,33 +174,25 @@ void Simulation::render()
     for (const auto &road : roads)
     {
         window.draw(road.second->getRoadLines());
+        window.draw(road.second->getTrafficLight());
     }
     for (const auto &road : roads)
     {
         for (const auto &flv : road.second->getFastLaneVehicles())
         {
             window.draw(flv->getShape());
+            window.draw(flv->getNumberPlate());
         }
         for (const auto &slv : road.second->getSlowLaneVehicles())
         {
             window.draw(slv->getShape());
+            window.draw(slv->getNumberPlate());
         }
     }
     // Draw time
     window.draw(timeText);
     window.draw(roadLengthText);
 
-    // // Draw traffic lights
-    // for (const auto &light : trafficLights)
-    // {
-    //     window.draw(light.getShape());
-    // }
-
-    // Draw vehicles
-    // for (const auto vehicle : vehicles)
-    // {
-    //     window.draw(vehicle->getShape());
-    // }
 
     window.display();
 }

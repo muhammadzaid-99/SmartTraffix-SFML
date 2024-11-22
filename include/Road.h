@@ -5,6 +5,7 @@
 #include "Vehicle.h"
 #include "CommonEnums.h"
 #include "ProbabilityGenerator.h"
+#include "TrafficLight.h"
 
 class Road {
 private:
@@ -18,16 +19,21 @@ private:
     sf::Vector2f slowLaneVehiclesFinalPos;
     std::vector<Vehicle*> fastLaneVehicles;
     std::vector<Vehicle*> slowLaneVehicles;
+    TrafficLight trafficLight;
     ProbabilityGenerator pg;
 
 public:
     Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction);
-    void addVehicle(std::string numberPlate, VehicleType vt);
+    ~Road();
+
+    void addVehicle(sf::Text numberPlate, VehicleType vt);
 
     const sf::RectangleShape& getRoadSurface() const;
     const sf::RectangleShape& getRoadLines() const;
+    const sf::CircleShape& getTrafficLight() const;
     const std::vector<Vehicle*>& getFastLaneVehicles() const;
     const std::vector<Vehicle*>& getSlowLaneVehicles() const;
+    void updateTrafficLight(float deltaTime);
 
     void removeLeftVehicles();
 };
