@@ -74,6 +74,7 @@ bool Vehicle::isChallanActive() const
 
 bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) // static
 {
+    // v2 is vehicle ahead
     sf::Vector2f v1Pos = v1.getPosition();
     sf::Vector2f v2Pos = v2.getPosition();
     sf::Vector2f v1Size = v1.getShape().getSize();
@@ -91,8 +92,8 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
     float safetyMarginY = v1Size.y;
 
     // Check if vehicles overlap in the next positions
-    bool isSafeX = std::abs(v1NextPos.x - v2NextPos.x) > safetyMarginX;
-    bool isSafeY = std::abs(v1NextPos.y - v2NextPos.y) > safetyMarginY;
+    bool isSafeX = (direction.x == 1 ? v2NextPos.x - v1NextPos.x : v1NextPos.x - v2NextPos.x) > safetyMarginX;
+    bool isSafeY = (direction.y == 1 ? v2NextPos.y - v1NextPos.y : v1NextPos.y - v2NextPos.y) > safetyMarginY;
 
     // Vehicles are at a safe distance if they don't overlap in either direction
     return isSafeX || isSafeY;

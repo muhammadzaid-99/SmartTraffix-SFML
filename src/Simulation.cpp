@@ -3,7 +3,7 @@
 Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f)
 {
     unsigned sW = screenWidth;
-    initTimeText();
+    initTexts();
 
     // Initialize roads cross-section
     roads[RoadEdge::EAST] = new Road(sf::Vector2f(0.f, sW / 2.f - 105), false, sf::Vector2i(1, 0));
@@ -47,7 +47,7 @@ void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, std::str
     roads[roadEdge]->addVehicle(numberPlate, vehicleType);
 }
 
-void Simulation::initTimeText()
+void Simulation::initTexts()
 {
     if (!font.loadFromFile("../assets/fonts/arial.ttf"))
     {
@@ -58,6 +58,11 @@ void Simulation::initTimeText()
     timeText.setCharacterSize(18);
     timeText.setFillColor(sf::Color::White);
     timeText.setPosition(10.f, 10.f);
+    roadLengthText.setFont(font);
+    roadLengthText.setCharacterSize(14);
+    roadLengthText.setFillColor(sf::Color::White);
+    roadLengthText.setPosition(10.f, 30.f);
+    roadLengthText.setString("Road Length: 800m, edge to edge");
 }
 
 void Simulation::run()
@@ -139,27 +144,30 @@ void Simulation::update(float deltaTime)
             const float& elapsedTime = (*flv_it)->getElapsedTime();
             if (flv_it == fastLane.begin())
             {
-                if (elapsedTime >= 5.f)
+                if (elapsedTime >= 1.f)
                 {
-                    (*flv_it)->setElapsedTime(elapsedTime - 5.f);
-                    (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
+                    (*flv_it)->setElapsedTime(elapsedTime - 1.f);
+                    // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
+                    (*flv_it)->increaseSpeed(0.27778f * 8); // for each 1m/s increase, increase by 1km/h using vf = vi + at
+
                 }
                 continue; // Skip further checks for the leading vehicle
             }
 
             // For all other vehicles, ensure safe distance with the vehicle ahead
             auto ahead_it = std::prev(flv_it); // Vehicle ahead (closer to the front)
-            if (!Vehicle::areVehiclesAtSafeDistance(**ahead_it, **flv_it))
+            if (!Vehicle::areVehiclesAtSafeDistance(**flv_it, **ahead_it))
             {
                 // Reduce speed to maintain safe distance
                 (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed())); // equal to the vehicle ahead
                 // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
             }
-            else if (elapsedTime >= 5.f)
+            else if (elapsedTime >= 1.f)
             {
-                (*flv_it)->setElapsedTime(elapsedTime - 5.f);
+                (*flv_it)->setElapsedTime(elapsedTime - 1.f);
                 // If safe, allow to increase speed
-                (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
+                // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
+                (*flv_it)->increaseSpeed(0.27778f * 8); // ncrease by 1km/h after each second
             }
         }
     }
@@ -190,6 +198,7 @@ void Simulation::render()
     }
     // Draw time
     window.draw(timeText);
+    window.draw(roadLengthText);
 
     // // Draw traffic lights
     // for (const auto &light : trafficLights)

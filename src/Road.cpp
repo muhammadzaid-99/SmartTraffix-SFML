@@ -24,14 +24,14 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
         roadLines.setPosition(centerX - 1.f, roadPosition.y);
         if (direction.y == 1)
         { // down
-            fastLaneVehiclesInitPos.y = slowLaneVehiclesInitPos.y = 0.f;
+            fastLaneVehiclesInitPos.y = slowLaneVehiclesInitPos.y = -40.f;
             fastLaneVehiclesFinalPos.y = slowLaneVehiclesFinalPos.y = 800.f;
             fastLaneVehiclesInitPos.x = fastLaneVehiclesFinalPos.x = roadPosition.x + 15.f;
             slowLaneVehiclesInitPos.x = slowLaneVehiclesFinalPos.x = centerX + 15.f;
         }
         else
         { // up
-            fastLaneVehiclesInitPos.y = slowLaneVehiclesInitPos.y = 760.f;
+            fastLaneVehiclesInitPos.y = slowLaneVehiclesInitPos.y = 800.f;
             fastLaneVehiclesFinalPos.y = slowLaneVehiclesFinalPos.y = -40.f;
             fastLaneVehiclesInitPos.x = fastLaneVehiclesFinalPos.x = centerX + 15.f;
             slowLaneVehiclesInitPos.x = slowLaneVehiclesFinalPos.x = roadPosition.x + 15.f;
@@ -43,14 +43,14 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
         roadLines.setPosition(roadPosition.x, centerY - 1.f);
         if (direction.x == 1)
         { // right
-            fastLaneVehiclesInitPos.x = slowLaneVehiclesInitPos.x = 0.f;
+            fastLaneVehiclesInitPos.x = slowLaneVehiclesInitPos.x = -40.f;
             fastLaneVehiclesFinalPos.x = slowLaneVehiclesFinalPos.x = 800.f;
             fastLaneVehiclesInitPos.y = fastLaneVehiclesFinalPos.y = centerY + 15.f;
             slowLaneVehiclesInitPos.y = slowLaneVehiclesFinalPos.y = roadPosition.y + 15.f;
         }
         else
         { // left
-            fastLaneVehiclesInitPos.x = slowLaneVehiclesInitPos.x = 760.f;
+            fastLaneVehiclesInitPos.x = slowLaneVehiclesInitPos.x = 800.f;
             fastLaneVehiclesFinalPos.x = slowLaneVehiclesFinalPos.x = -40.f;
             fastLaneVehiclesInitPos.y = fastLaneVehiclesFinalPos.y = roadPosition.y + 15.f;
             slowLaneVehiclesInitPos.y = slowLaneVehiclesFinalPos.y = centerY + 15.f;

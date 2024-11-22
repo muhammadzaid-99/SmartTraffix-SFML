@@ -25,6 +25,7 @@ class Simulation
 private:
     sf::Font font;
     sf::Text timeText;
+    sf::Text roadLengthText;
     sf::RenderWindow window;
     std::vector<Vehicle *> vehicles;
     std::vector<TrafficLight> trafficLights;
@@ -57,7 +58,7 @@ private:
     // Renders the simulation
     void render();
 
-    void initTimeText();
+    void initTexts();
 };
 
 #endif // SIMULATION_H
