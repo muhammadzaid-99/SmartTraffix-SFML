@@ -30,7 +30,7 @@ private:
     std::vector<TrafficLight> trafficLights;
     std::unordered_map<RoadEdge, Road *> roads;
     unsigned int screenWidth;
-    float elapsedTime;
+    float simulationElapsedTime;
     std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
     ProbabilityGenerator pg;
 

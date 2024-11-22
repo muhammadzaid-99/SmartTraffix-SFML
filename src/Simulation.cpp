@@ -1,10 +1,10 @@
 #include "Simulation.h"
 
-Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), elapsedTime(0.f)
+Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f)
 {
     unsigned sW = screenWidth;
     initTimeText();
-    
+
     // Initialize roads cross-section
     roads[RoadEdge::EAST] = new Road(sf::Vector2f(0.f, sW / 2.f - 105), false, sf::Vector2i(1, 0));
     roads[RoadEdge::WEST] = new Road(sf::Vector2f(0.f, sW / 2.f + 5), false, sf::Vector2i(-1, 0));
@@ -22,15 +22,15 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.5f, 0.f, 1.0, RoadEdge::EAST, VehicleType::LTV}); // from east
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 1.0, RoadEdge::WEST, VehicleType::LTV});  // from west
 
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 0.2f, RoadEdge::NORTH, VehicleType::EV});  // from north
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 0.2f, RoadEdge::NORTH, VehicleType::EV}); // from north
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 0.05f, RoadEdge::SOUTH, VehicleType::EV}); // from south
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{20.f, 0.f, 0.1f, RoadEdge::EAST, VehicleType::EV}); // from east
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 0.3f, RoadEdge::WEST, VehicleType::EV}); // from west
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{20.f, 0.f, 0.1f, RoadEdge::EAST, VehicleType::EV});  // from east
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 0.3f, RoadEdge::WEST, VehicleType::EV});   // from west
 
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::NORTH, VehicleType::HTV});  // from north
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::NORTH, VehicleType::HTV}); // from north
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::SOUTH, VehicleType::HTV}); // from south
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::EAST, VehicleType::HTV}); // from east
-    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::WEST, VehicleType::HTV}); // from west
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::EAST, VehicleType::HTV});  // from east
+    vehicleSpawnTimers.push_back(VehicleSpawnTimer{15.f, 0.f, 1.f, RoadEdge::WEST, VehicleType::HTV});  // from west
 }
 
 Simulation::~Simulation()
@@ -47,12 +47,13 @@ void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, std::str
     roads[roadEdge]->addVehicle(numberPlate, vehicleType);
 }
 
-void Simulation::initTimeText() {
-    if (!font.loadFromFile("assets/fonts/arial.ttf"))
+void Simulation::initTimeText()
+{
+    if (!font.loadFromFile("../assets/fonts/arial.ttf"))
     {
         std::cerr << "Error loading font" << std::endl;
     }
-    
+
     timeText.setFont(font);
     timeText.setCharacterSize(18);
     timeText.setFillColor(sf::Color::White);
@@ -66,15 +67,14 @@ void Simulation::run()
     while (window.isOpen())
     {
         float deltaTime = simulationClock.restart().asSeconds();
-        elapsedTime += deltaTime;
-        timeText.setString(sf::String("Elapsed Time: " + std::to_string(static_cast<int>(elapsedTime))) + "s");
+        simulationElapsedTime += deltaTime;
+        timeText.setString(sf::String("Elapsed Time: " + std::to_string(static_cast<int>(simulationElapsedTime))) + "s");
 
         handleEvents();
         spawnVehicles(deltaTime);
         update(deltaTime);
         render();
     }
-
 }
 
 void Simulation::spawnVehicles(float deltaTime)
@@ -127,13 +127,45 @@ void Simulation::update(float deltaTime)
         {
             slv->updatePosition(deltaTime);
         }
+
+        const auto &fastLane = road.second->getFastLaneVehicles();
+
+        // Adjust speeds to ensure safe distances
+        for (auto flv_it = fastLane.begin(); flv_it != fastLane.end(); flv_it++)
+        {
+            // Leading vehicle: allow it to maintain/increase speed
+            const float& elapsedTime = (*flv_it)->getElapsedTime();
+            if (flv_it == fastLane.begin())
+            {
+                if (elapsedTime >= 5.f)
+                {
+                    (*flv_it)->setElapsedTime(elapsedTime - 5.f);
+                    (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
+                }
+                continue; // Skip further checks for the leading vehicle
+            }
+
+            // For all other vehicles, ensure safe distance with the vehicle ahead
+            auto ahead_it = std::prev(flv_it); // Vehicle ahead (closer to the front)
+            if (!Vehicle::areVehiclesAtSafeDistance(**ahead_it, **flv_it))
+            {
+                // Reduce speed to maintain safe distance
+                (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed())); // equal to the vehicle ahead
+                // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
+            }
+            else if (elapsedTime >= 5.f)
+            {
+                (*flv_it)->setElapsedTime(elapsedTime - 5.f);
+                // If safe, allow to increase speed
+                (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
+            }
+        }
     }
 }
 
 void Simulation::render()
 {
     window.clear(sf::Color::Black);
-
 
     for (const auto &road : roads)
     {

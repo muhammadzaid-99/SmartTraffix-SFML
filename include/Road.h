@@ -16,6 +16,7 @@ private:
     sf::Vector2f slowLaneVehiclesInitPos;
     std::vector<Vehicle*> fastLaneVehicles;
     std::vector<Vehicle*> slowLaneVehicles;
+    ProbabilityGenerator pg;
 
 public:
     Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction);
