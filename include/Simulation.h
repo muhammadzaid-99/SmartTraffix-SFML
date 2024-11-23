@@ -24,15 +24,18 @@ class Simulation
 {
 private:
     sf::Font font;
-    sf::Text timeText;
+    sf::Text elapsedTimeText;
+    sf::Text currentTimeText;
     sf::Text roadLengthText;
     sf::RenderWindow window;
+    float currentTimeOffset;
     std::unordered_map<RoadEdge, Road *> roads;
     unsigned int screenWidth;
     float simulationElapsedTime;
     std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
     ProbabilityGenerator pg;
     unsigned lastVehicleId;
+    bool isPeakTime;
 
 public:
     // Constructor
@@ -56,6 +59,11 @@ private:
 
     // Renders the simulation
     void render();
+
+
+    std::string updatedAndGetFormattedTime(int hour, int minute, int second);
+
+    const sf::Text& getCurrentTimeText();
 
     void initTexts();
 };
