@@ -1,6 +1,6 @@
 #include "TrafficLight.h"
 TrafficLight::TrafficLight(sf::Vector2f position)
-    : currentColor(sf::Color::Green), timer(0.f), duration{2.f, 1.f, 10.f} {
+    : currentColor(sf::Color::Green), timer(0.f), duration{8.f, 3.f, 10.f} {
     shape.setRadius(10.f);
     shape.setFillColor(currentColor);
     shape.setOrigin(shape.getGlobalBounds().width / 2, shape.getGlobalBounds().height / 2);
@@ -27,6 +27,10 @@ void TrafficLight::update(float deltaTime) {
 
 const sf::CircleShape &TrafficLight::getShape() const {
     return shape;
+}
+
+const sf::Vector2f &TrafficLight::getPosition() const {
+    return shape.getPosition();
 }
 
 sf::Color TrafficLight::getColor() const {

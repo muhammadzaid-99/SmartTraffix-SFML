@@ -20,6 +20,8 @@ public:
     // Getter for the shape
     const sf::CircleShape& getShape() const;
 
+    const sf::Vector2f& getPosition() const;
+
     void move(float x, float y);
 
 

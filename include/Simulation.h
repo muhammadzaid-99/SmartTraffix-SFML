@@ -32,6 +32,7 @@ private:
     float simulationElapsedTime;
     std::vector<VehicleSpawnTimer> vehicleSpawnTimers;
     ProbabilityGenerator pg;
+    unsigned lastVehicleId;
 
 public:
     // Constructor

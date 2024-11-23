@@ -15,6 +15,7 @@ class Vehicle {
     bool challanActive;
     float elapsedTime;
     sf::Vector2i direction;
+    bool isStopped;
 
    public:
     // Constructor
@@ -47,6 +48,8 @@ class Vehicle {
     const sf::Vector2i getDirection() const;
     const float& getSpeed() const;
     void setSpeed(float speed);
+    void setIsStopped(bool);
+    const bool& getIsStopped() const;
 
     const float& getMaxSpeed() const;
     const sf::Text& getNumberPlate() const;

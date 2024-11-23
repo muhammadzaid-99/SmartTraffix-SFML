@@ -1,10 +1,13 @@
 #include "Road.h"
 
-Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : direction(direction), trafficLight(TrafficLight(sf::Vector2f(0,0))) {
-    if (isVertical)
+Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : direction(direction), trafficLight(TrafficLight(sf::Vector2f(0, 0))) {
+    if (isVertical) {
         roadSurface.setSize(sf::Vector2f(100.f, 800.f));
-    else
+        trafficLightIntersector.setSize(sf::Vector2f(100.f, 10.f));
+    } else {
         roadSurface.setSize(sf::Vector2f(800.f, 100.f));
+        trafficLightIntersector.setSize(sf::Vector2f(10.f, 100.f));
+    }
 
     roadSurface.setPosition(position);
     roadSurface.setFillColor(sf::Color::White);
@@ -16,7 +19,9 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
 
     // trafficLight origin is centered
     trafficLight.setPosition(sf::Vector2f(centerX, centerY));
-    
+    trafficLightIntersector.setOrigin(trafficLightIntersector.getGlobalBounds().width / 2, trafficLightIntersector.getGlobalBounds().height / 2);
+    trafficLightIntersector.setFillColor(sf::Color(255, 255, 0, 64));
+    trafficLightIntersector.setPosition(sf::Vector2f(centerX, centerY));
 
     // vehicle width is 20.f, length is 40.f
     // lane width if 50.f, 15.f is the margin in lane from car to road
@@ -29,13 +34,15 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
             fastLaneVehiclesFinalPos.y = slowLaneVehiclesFinalPos.y = 800.f;
             fastLaneVehiclesInitPos.x = fastLaneVehiclesFinalPos.x = roadPosition.x + 15.f;
             slowLaneVehiclesInitPos.x = slowLaneVehiclesFinalPos.x = centerX + 15.f;
-            trafficLight.move(0, -105);
+            trafficLight.move(0, -110);
+            trafficLightIntersector.move(0, -140);
         } else {  // up
             fastLaneVehiclesInitPos.y = slowLaneVehiclesInitPos.y = 800.f;
             fastLaneVehiclesFinalPos.y = slowLaneVehiclesFinalPos.y = -40.f;
             fastLaneVehiclesInitPos.x = fastLaneVehiclesFinalPos.x = centerX + 15.f;
             slowLaneVehiclesInitPos.x = slowLaneVehiclesFinalPos.x = roadPosition.x + 15.f;
-            trafficLight.move(0, +105);
+            trafficLight.move(0, +110);
+            trafficLightIntersector.move(0, +140);
         }
     } else {
         roadLines.setSize(sf::Vector2f(roadSize.x, 2.f));
@@ -45,13 +52,15 @@ Road::Road(sf::Vector2f position, bool isVertical, sf::Vector2i direction) : dir
             fastLaneVehiclesFinalPos.x = slowLaneVehiclesFinalPos.x = 800.f;
             fastLaneVehiclesInitPos.y = fastLaneVehiclesFinalPos.y = centerY + 15.f;
             slowLaneVehiclesInitPos.y = slowLaneVehiclesFinalPos.y = roadPosition.y + 15.f;
-            trafficLight.move(-105, 0);
+            trafficLight.move(-110, 0);
+            trafficLightIntersector.move(-140, 0);
         } else {  // left
             fastLaneVehiclesInitPos.x = slowLaneVehiclesInitPos.x = 800.f;
             fastLaneVehiclesFinalPos.x = slowLaneVehiclesFinalPos.x = -40.f;
             fastLaneVehiclesInitPos.y = fastLaneVehiclesFinalPos.y = roadPosition.y + 15.f;
             slowLaneVehiclesInitPos.y = slowLaneVehiclesFinalPos.y = centerY + 15.f;
-            trafficLight.move(+105, 0);
+            trafficLight.move(+110, 0);
+            trafficLightIntersector.move(+140, 0);
         }
     }
 
@@ -153,6 +162,9 @@ const sf::RectangleShape &Road::getRoadLines() const {
     return roadLines;
 }
 
+const sf::RectangleShape &Road::getIntersectorLine() const {
+    return trafficLightIntersector;
+}
 const sf::CircleShape &Road::getTrafficLight() const {
     return trafficLight.getShape();
 }
@@ -166,4 +178,29 @@ const std::vector<Vehicle *> &Road::getSlowLaneVehicles() const {
 
 void Road::updateTrafficLight(float deltaTime) {
     trafficLight.update(deltaTime);
+    sf::Color lightColor = trafficLight.getColor();
+    lightColor.a = 64;
+    trafficLightIntersector.setFillColor(lightColor);
+
+    if (trafficLight.getColor() == sf::Color::Red || trafficLight.getColor() == sf::Color::Yellow) {
+        for (auto &flv : fastLaneVehicles) {
+            if (flv->getShape().getGlobalBounds().intersects(trafficLightIntersector.getGlobalBounds())) {
+                flv->setIsStopped(true);
+                break;
+            }
+        }
+        for (auto &slv : slowLaneVehicles) {
+            if (slv->getShape().getGlobalBounds().intersects(trafficLightIntersector.getGlobalBounds())) {
+                slv->setIsStopped(true);
+                break;
+            }
+        }
+    } else if (trafficLight.getColor() == sf::Color::Green) {
+        for (auto &flv : fastLaneVehicles) {
+            flv->setIsStopped(false);
+        }
+        for (auto &slv : slowLaneVehicles) {
+            slv->setIsStopped(false);
+        }
+    }
 }

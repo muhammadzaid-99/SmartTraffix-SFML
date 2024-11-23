@@ -3,6 +3,7 @@
 Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f)
 {
     unsigned sW = screenWidth;
+    lastVehicleId = 100;
     initTexts();
 
     // Initialize roads cross-section
@@ -93,7 +94,7 @@ void Simulation::spawnVehicles(float deltaTime)
         {
             timer.elapsed -= timer.interval;
             if (prob <= timer.probability)
-                addVehicle(timer.roadEdge, timer.vehicleType, sf::Text(sf::String("LE15"), font));
+                addVehicle(timer.roadEdge, timer.vehicleType, sf::Text(std::to_string(lastVehicleId++), font));
         }
     }
 }
@@ -148,6 +149,10 @@ void Simulation::update(float deltaTime)
             auto ahead_it = std::prev(flv_it); // Vehicle ahead (closer to the front)
             if (!Vehicle::areVehiclesAtSafeDistance(**flv_it, **ahead_it))
             {
+                if ((*ahead_it)->getIsStopped())
+                    (*flv_it)->setIsStopped(true);
+                else
+                    (*flv_it)->setIsStopped(false);
                 // Reduce speed to maintain safe distance
                 (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed())); // equal to the vehicle ahead
                 // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
@@ -174,6 +179,7 @@ void Simulation::render()
     for (const auto &road : roads)
     {
         window.draw(road.second->getRoadLines());
+        window.draw(road.second->getIntersectorLine());
         window.draw(road.second->getTrafficLight());
     }
     for (const auto &road : roads)

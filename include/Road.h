@@ -20,6 +20,7 @@ private:
     std::vector<Vehicle*> fastLaneVehicles;
     std::vector<Vehicle*> slowLaneVehicles;
     TrafficLight trafficLight;
+    sf::RectangleShape trafficLightIntersector;
     ProbabilityGenerator pg;
 
 public:
@@ -30,6 +31,7 @@ public:
 
     const sf::RectangleShape& getRoadSurface() const;
     const sf::RectangleShape& getRoadLines() const;
+    const sf::RectangleShape& getIntersectorLine() const;
     const sf::CircleShape& getTrafficLight() const;
     const std::vector<Vehicle*>& getFastLaneVehicles() const;
     const std::vector<Vehicle*>& getSlowLaneVehicles() const;

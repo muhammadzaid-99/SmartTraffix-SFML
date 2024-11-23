@@ -1,7 +1,7 @@
 #include "Vehicle.h"
 
 Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float initialSpeed, float maxSpeed, sf::Vector2i direction)
-    : numberPlate(plate), speed(initialSpeed), maxSpeed(maxSpeed), challanActive(false), direction(direction)
+    : numberPlate(plate), speed(initialSpeed), maxSpeed(maxSpeed), challanActive(false), direction(direction), isStopped(false)
 {
     if (direction.x == 0)
         shape.setSize(sf::Vector2f(20.f, 40.f));
@@ -9,19 +9,23 @@ Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float i
         shape.setSize(sf::Vector2f(40.f, 20.f));
     shape.setPosition(position);
     shape.setFillColor(color);
+    if (direction.x == 0) {
+        numberPlate.setOrigin(0, numberPlate.getGlobalBounds().height);
+        numberPlate.rotate(90);
+    }
     numberPlate.setPosition(position);
-    numberPlate.move(5, 5);
     numberPlate.setFillColor(sf::Color::White);
-    numberPlate.setCharacterSize(10);
+    numberPlate.setCharacterSize(14);
+    numberPlate.setStyle(sf::Text::Bold);
 
     elapsedTime = 0.f;
 }
 
 void Vehicle::updatePosition(float deltaTime)
 {
+    if (isStopped) return;
     shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
     numberPlate.setPosition(shape.getPosition());
-    numberPlate.move(5, 5);
     elapsedTime += deltaTime;
 }
 
@@ -54,6 +58,14 @@ const float& Vehicle::getSpeed() const
 
 void Vehicle::setSpeed(float speed) {
     this->speed = speed;
+}
+
+void Vehicle::setIsStopped(bool stopped) {
+    isStopped = stopped;
+}
+
+const bool& Vehicle::getIsStopped() const {
+    return isStopped;
 }
 
 const float& Vehicle::getElapsedTime() const {
@@ -98,8 +110,8 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
     sf::Vector2f v2NextPos = v2Pos + sf::Vector2f(v2Speed * direction.x, v2Speed * direction.y);
 
     // Calculate safety margin in each direction
-    float safetyMarginX = v1Size.x;
-    float safetyMarginY = v1Size.y;
+    float safetyMarginX = v1Size.x * 2;
+    float safetyMarginY = v1Size.y * 2;
 
     // Check if vehicles overlap in the next positions
     bool isSafeX = (direction.x == 1 ? v2NextPos.x - v1NextPos.x : v1NextPos.x - v2NextPos.x) > safetyMarginX;
