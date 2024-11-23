@@ -148,7 +148,6 @@ void Simulation::update(float deltaTime) {
 
         const auto &fastLane = road.second->getFastLaneVehicles();
 
-        // Adjust speeds to ensure safe distances
         for (auto flv_it = fastLane.begin(); flv_it != fastLane.end(); flv_it++) {
             // Leading vehicle: allow it to maintain/increase speed
             const float &elapsedTime = (*flv_it)->getElapsedTime();
@@ -158,7 +157,7 @@ void Simulation::update(float deltaTime) {
                     // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
                     (*flv_it)->increaseSpeed(0.27778f * 8);  // for each 1m/s increase, increase by 1km/h using vf = vi + at
                 }
-                continue;  // Skip further checks for the leading vehicle
+                continue;  
             }
 
             // For all other vehicles, ensure safe distance with the vehicle ahead
@@ -168,12 +167,11 @@ void Simulation::update(float deltaTime) {
                     (*flv_it)->setIsStopped(true);
                 else
                     (*flv_it)->setIsStopped(false);
-                // Reduce speed to maintain safe distance
+                
                 (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed()));  // equal to the vehicle ahead
                 // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
             } else if (elapsedTime >= 1.f) {
                 (*flv_it)->setElapsedTime(elapsedTime - 1.f);
-                // If safe, allow to increase speed
                 // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
                 (*flv_it)->increaseSpeed(0.27778f * 8);  // ncrease by 1km/h after each second
             }
@@ -202,7 +200,7 @@ void Simulation::render() {
             window.draw(slv->getNumberPlate());
         }
     }
-    // Draw time
+    // Draw texts
     window.draw(elapsedTimeText);
     window.draw(roadLengthText);
     window.draw(getCurrentTimeText());

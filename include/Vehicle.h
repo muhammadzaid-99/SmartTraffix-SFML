@@ -16,6 +16,7 @@ class Vehicle {
     float elapsedTime;
     sf::Vector2i direction;
     bool isStopped;
+    bool isOutOfOrder;
 
    public:
     // Constructor
@@ -50,6 +51,9 @@ class Vehicle {
     void setSpeed(float speed);
     void setIsStopped(bool);
     const bool& getIsStopped() const;
+
+    const bool& getIsOutOfOrder() const;
+    void setOutOfOrder(bool);
 
     const float& getMaxSpeed() const;
     const sf::Text& getNumberPlate() const;

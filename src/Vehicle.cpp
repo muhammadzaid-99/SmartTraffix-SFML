@@ -1,8 +1,7 @@
 #include "Vehicle.h"
 
 Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float initialSpeed, float maxSpeed, sf::Vector2i direction)
-    : numberPlate(plate), speed(initialSpeed), maxSpeed(maxSpeed), challanActive(false), direction(direction), isStopped(false)
-{
+    : numberPlate(plate), speed(initialSpeed), maxSpeed(maxSpeed), challanActive(false), direction(direction), isStopped(false), isOutOfOrder(false) {
     if (direction.x == 0)
         shape.setSize(sf::Vector2f(20.f, 40.f));
     else
@@ -21,9 +20,8 @@ Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float i
     elapsedTime = 0.f;
 }
 
-void Vehicle::updatePosition(float deltaTime)
-{
-    if (isStopped) return;
+void Vehicle::updatePosition(float deltaTime) {
+    if (isStopped || isOutOfOrder) return;
     shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
     numberPlate.setPosition(shape.getPosition());
     elapsedTime += deltaTime;
@@ -37,8 +35,7 @@ const sf::Vector2i Vehicle::getDirection() const {
     return direction;
 }
 
-void Vehicle::increaseSpeed(float increment)
-{
+void Vehicle::increaseSpeed(float increment) {
     speed = std::min(increment + speed, maxSpeed);
 }
 
@@ -46,13 +43,11 @@ void Vehicle::decreaseSpeed(float decrement) {
     speed = std::max(0.f, speed - decrement);
 }
 
-const sf::RectangleShape &Vehicle::getShape() const
-{
+const sf::RectangleShape& Vehicle::getShape() const {
     return shape;
 }
 
-const float& Vehicle::getSpeed() const
-{
+const float& Vehicle::getSpeed() const {
     return speed;
 }
 
@@ -68,6 +63,18 @@ const bool& Vehicle::getIsStopped() const {
     return isStopped;
 }
 
+void Vehicle::setOutOfOrder(bool outOfOrder) {
+    isOutOfOrder = outOfOrder;
+    if (outOfOrder) {
+        shape.setFillColor(sf::Color::Black);
+        setIsStopped(true);
+    }
+}
+
+const bool& Vehicle::getIsOutOfOrder() const {
+    return isOutOfOrder;
+}
+
 const float& Vehicle::getElapsedTime() const {
     return elapsedTime;
 }
@@ -80,13 +87,11 @@ const float& Vehicle::getMaxSpeed() const {
     return maxSpeed;
 }
 
-void Vehicle::activateChallan()
-{
+void Vehicle::activateChallan() {
     challanActive = true;
 }
 
-bool Vehicle::isChallanActive() const
-{
+bool Vehicle::isChallanActive() const {
     return challanActive;
 }
 
@@ -94,7 +99,7 @@ const sf::Text& Vehicle::getNumberPlate() const {
     return numberPlate;
 }
 
-bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) // static
+bool Vehicle::areVehiclesAtSafeDistance(const Vehicle& v1, const Vehicle& v2)  // static
 {
     // v2 is vehicle ahead
     sf::Vector2f v1Pos = v1.getPosition();
@@ -103,7 +108,7 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
     sf::Vector2f v2Size = v2.getShape().getSize();
     const float v1Speed = v1.getSpeed();
     const float v2Speed = v2.getSpeed();
-    sf::Vector2i direction = v1.getDirection(); // Assuming the same for both vehicles
+    sf::Vector2i direction = v1.getDirection();  // Assuming the same for both vehicles
 
     // Calculate next positions based on direction and speed
     sf::Vector2f v1NextPos = v1Pos + sf::Vector2f(v1Speed * direction.x, v1Speed * direction.y);
@@ -120,22 +125,22 @@ bool Vehicle::areVehiclesAtSafeDistance(const Vehicle &v1, const Vehicle &v2) //
     // Vehicles are at a safe distance if they don't overlap in either direction
     return isSafeX || isSafeY;
 }
- 
+
 // suppose road is SCREEN_WIDTH / 8 metres long (100m)
 LightVehicle::LightVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 16.6667f * 8; // 60km/h = 16.667m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
-    }
+}
 
 HeavyVehicle::HeavyVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 11.1111f * 8; // 40km/h = 11.11m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
-    }
+}
 
 EmergencyVehicle::EmergencyVehicle(sf::Text plate, sf::Vector2f position, sf::Vector2i direction, float initialSpeed, float maxSpeed, sf::Color color)
     : Vehicle(plate, position, color, initialSpeed, maxSpeed, direction) {
     // maxSpeed = 22.2222f * 8; // 80km/h = 22.22m/s
     // speed = pg.getRandomProb(1.f, maxSpeed);
-    }
+}
