@@ -21,10 +21,10 @@ Vehicle::Vehicle(sf::Text plate, sf::Vector2f position, sf::Color color, float i
 }
 
 void Vehicle::updatePosition(float deltaTime) {
+    elapsedTime += deltaTime;
     if (isStopped || isOutOfOrder) return;
     shape.move(speed * deltaTime * direction.x, speed * deltaTime * direction.y);
     numberPlate.setPosition(shape.getPosition());
-    elapsedTime += deltaTime;
 }
 
 const sf::Vector2f Vehicle::getPosition() const {
@@ -66,8 +66,8 @@ const bool& Vehicle::getIsStopped() const {
 void Vehicle::setOutOfOrder(bool outOfOrder) {
     isOutOfOrder = outOfOrder;
     if (outOfOrder) {
-        shape.setFillColor(sf::Color::Black);
         setIsStopped(true);
+        shape.setFillColor(sf::Color::Black);
     }
 }
 
@@ -101,6 +101,8 @@ const sf::Text& Vehicle::getNumberPlate() const {
 
 bool Vehicle::areVehiclesAtSafeDistance(const Vehicle& v1, const Vehicle& v2)  // static
 {
+    // if (v1.getShape().getGlobalBounds().intersects(v2.getShape().getGlobalBounds()))
+    //     return false;
     // v2 is vehicle ahead
     sf::Vector2f v1Pos = v1.getPosition();
     sf::Vector2f v2Pos = v2.getPosition();

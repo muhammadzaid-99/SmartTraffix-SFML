@@ -1,6 +1,6 @@
 #include "Simulation.h"
 
-Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f) {
+Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f), outOfOrderVehicle(nullptr) {
     unsigned sW = screenWidth;
     lastVehicleId = 100;
     initTexts();
@@ -40,6 +40,36 @@ void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, sf::Text
     roads[roadEdge]->addVehicle(numberPlate, vehicleType);
 }
 
+void Simulation::markRandomVehicleOutOfOrder() {
+
+    if (outOfOrderVehicle != nullptr) return;  // Only one vehicle should go out of order.
+    if (pg.getRandomProb(0,1) < 0.5f) return; // 50% chance so it is not always at 20s
+
+    std::vector<Vehicle *> allVehicles;
+
+    // Collect all vehicles from all roads.
+    for (const auto &road : roads) {
+        for (const auto &flv : road.second->getFastLaneVehicles()) {
+            allVehicles.push_back(flv);
+        }
+        for (const auto &slv : road.second->getSlowLaneVehicles()) {
+            allVehicles.push_back(slv);
+        }
+    }
+
+    if (!allVehicles.empty()) {
+        // Randomly select a vehicle.
+        int randomIndex = pg.getRandomProb(0, allVehicles.size() - 1);
+        outOfOrderVehicle = allVehicles[randomIndex];
+
+        // Mark the vehicle as out of order.
+        outOfOrderVehicle->setOutOfOrder(true);
+
+        std::cout << "Vehicle is out of order and has stopped.\n" << outOfOrderVehicle->getIsOutOfOrder();
+    }
+}
+
+
 void Simulation::initTexts() {
     if (!font.loadFromFile("../assets/fonts/arial.ttf")) {
         std::cerr << "Error loading font" << std::endl;
@@ -53,7 +83,7 @@ void Simulation::initTexts() {
     roadLengthText.setCharacterSize(18);
     roadLengthText.setFillColor(sf::Color::White);
     roadLengthText.setPosition(10.f, 30.f);
-    roadLengthText.setString("Road Length: 800m, edge to edge");
+    roadLengthText.setString("Road Length: 100m, edge to edge");
     currentTimeText.setFont(font);
     currentTimeText.setCharacterSize(18);
     currentTimeText.setFillColor(sf::Color::White);
@@ -135,6 +165,10 @@ const sf::Text &Simulation::getCurrentTimeText() {
 }
 
 void Simulation::update(float deltaTime) {
+
+    if (outOfOrderVehicle == nullptr && simulationElapsedTime > 3.f)
+        markRandomVehicleOutOfOrder();
+
     for (const auto &road : roads) {
         for (const auto &flv : road.second->getFastLaneVehicles()) {
             flv->updatePosition(deltaTime);
@@ -173,7 +207,8 @@ void Simulation::update(float deltaTime) {
             } else if (elapsedTime >= 1.f) {
                 (*flv_it)->setElapsedTime(elapsedTime - 1.f);
                 // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
-                (*flv_it)->increaseSpeed(0.27778f * 8);  // ncrease by 1km/h after each second
+                if(!(*flv_it)->getIsStopped())
+                    (*flv_it)->increaseSpeed(0.27778f * 8);  // ncrease by 1km/h after each second
             }
         }
     }

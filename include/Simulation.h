@@ -36,6 +36,7 @@ private:
     ProbabilityGenerator pg;
     unsigned lastVehicleId;
     bool isPeakTime;
+    Vehicle *outOfOrderVehicle; 
 
 public:
     // Constructor
@@ -66,6 +67,8 @@ private:
     const sf::Text& getCurrentTimeText();
 
     void initTexts();
+
+    void markRandomVehicleOutOfOrder();
 };
 
 #endif // SIMULATION_H
