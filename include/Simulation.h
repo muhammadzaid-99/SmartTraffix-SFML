@@ -37,6 +37,7 @@ private:
     unsigned lastVehicleId;
     bool isPeakTime;
     Vehicle *outOfOrderVehicle; 
+    std::pair<RoadEdge, float> greenLightRoadEdge; // Road edge with green light, and the time it has been green
 
 public:
     // Constructor
@@ -69,6 +70,10 @@ private:
     void initTexts();
 
     void markRandomVehicleOutOfOrder();
+
+    void adjustVehiclesSpeed(const std::vector<Vehicle *>& vehicles);
+
+    void updateTrafficLights(float deltaTime);
 };
 
 #endif // SIMULATION_H

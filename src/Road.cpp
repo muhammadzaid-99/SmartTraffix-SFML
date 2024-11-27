@@ -176,8 +176,12 @@ const std::vector<Vehicle *> &Road::getSlowLaneVehicles() const {
     return slowLaneVehicles;
 }
 
+void Road::setTrafficLightColor(sf::Color color) {
+    trafficLight.setColor(color);
+}
+
 void Road::updateTrafficLight(float deltaTime) {
-    trafficLight.update(deltaTime);
+    // trafficLight.update(deltaTime);
     sf::Color lightColor = trafficLight.getColor();
     lightColor.a = 64;
     trafficLightIntersector.setFillColor(lightColor);

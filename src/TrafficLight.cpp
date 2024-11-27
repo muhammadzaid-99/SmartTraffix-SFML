@@ -1,6 +1,6 @@
 #include "TrafficLight.h"
 TrafficLight::TrafficLight(sf::Vector2f position)
-    : currentColor(sf::Color::Green), timer(0.f), duration{8.f, 3.f, 10.f} {
+    : currentColor(sf::Color::Red), timer(0.f), duration{8.f, 3.f, 10.f} {
     shape.setRadius(10.f);
     shape.setFillColor(currentColor);
     shape.setOrigin(shape.getGlobalBounds().width / 2, shape.getGlobalBounds().height / 2);
@@ -11,18 +11,18 @@ void TrafficLight::update(float deltaTime) {
     timer += deltaTime;
 
     // Switch traffic light color based on timer
-    if (currentColor == sf::Color::Red && timer >= duration[0]) {
-        currentColor = sf::Color::Green;
-        timer = 0.f;
-    } else if (currentColor == sf::Color::Green && timer >= duration[2]) {
-        currentColor = sf::Color::Yellow;
-        timer = 0.f;
-    } else if (currentColor == sf::Color::Yellow && timer >= duration[1]) {
-        currentColor = sf::Color::Red;
-        timer = 0.f;
-    }
+    // if (currentColor == sf::Color::Red && timer >= duration[0]) {
+    //     currentColor = sf::Color::Green;
+    //     timer = 0.f;
+    // } else if (currentColor == sf::Color::Green && timer >= duration[2]) {
+    //     currentColor = sf::Color::Yellow;
+    //     timer = 0.f;
+    // } else if (currentColor == sf::Color::Yellow && timer >= duration[1]) {
+    //     currentColor = sf::Color::Red;
+    //     timer = 0.f;
+    // }
 
-    shape.setFillColor(currentColor);
+    // shape.setFillColor(currentColor);
 }
 
 const sf::CircleShape &TrafficLight::getShape() const {

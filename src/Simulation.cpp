@@ -1,6 +1,6 @@
 #include "Simulation.h"
 
-Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f), outOfOrderVehicle(nullptr) {
+Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWidth, screenWidth), "SmartTraffix"), simulationElapsedTime(0.f), outOfOrderVehicle(nullptr), greenLightRoadEdge(std::make_pair(RoadEdge::NORTH, 0.f)) {
     unsigned sW = screenWidth;
     lastVehicleId = 100;
     initTexts();
@@ -10,6 +10,8 @@ Simulation::Simulation(unsigned int screenWidth) : window(sf::VideoMode(screenWi
     roads[RoadEdge::WEST] = new Road(sf::Vector2f(0.f, sW / 2.f + 5), false, sf::Vector2i(-1, 0));
     roads[RoadEdge::NORTH] = new Road(sf::Vector2f(sW / 2.f + 5, 0.f), true, sf::Vector2i(0, 1));
     roads[RoadEdge::SOUTH] = new Road(sf::Vector2f(sW / 2.f - 105, 0.f), true, sf::Vector2i(0, -1));
+
+    roads[RoadEdge::NORTH]->setTrafficLightColor(sf::Color::Green);
 
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{1.f, 0.f, 1.0, RoadEdge::NORTH, VehicleType::LTV});  // from north
     vehicleSpawnTimers.push_back(VehicleSpawnTimer{2.f, 0.f, 1.0, RoadEdge::SOUTH, VehicleType::LTV});  // from south
@@ -41,9 +43,8 @@ void Simulation::addVehicle(RoadEdge roadEdge, VehicleType vehicleType, sf::Text
 }
 
 void Simulation::markRandomVehicleOutOfOrder() {
-
-    if (outOfOrderVehicle != nullptr) return;  // Only one vehicle should go out of order.
-    if (pg.getRandomProb(0,1) < 0.5f) return; // 50% chance so it is not always at 20s
+    if (outOfOrderVehicle != nullptr) return;   // Only one vehicle should go out of order.
+    if (pg.getRandomProb(0, 1) < 0.5f) return;  // 50% chance so it is not always at 20s
 
     std::vector<Vehicle *> allVehicles;
 
@@ -65,10 +66,10 @@ void Simulation::markRandomVehicleOutOfOrder() {
         // Mark the vehicle as out of order.
         outOfOrderVehicle->setOutOfOrder(true);
 
-        std::cout << "Vehicle is out of order and has stopped.\n" << outOfOrderVehicle->getIsOutOfOrder();
+        std::cout << "Vehicle is out of order and has stopped.\n"
+                  << outOfOrderVehicle->getIsOutOfOrder();
     }
 }
-
 
 void Simulation::initTexts() {
     if (!font.loadFromFile("../assets/fonts/arial.ttf")) {
@@ -164,10 +165,76 @@ const sf::Text &Simulation::getCurrentTimeText() {
     return currentTimeText;
 }
 
-void Simulation::update(float deltaTime) {
+void Simulation::updateTrafficLights(float deltaTime) {
+    // round robin traffic light switching, antoclockwise
+    greenLightRoadEdge.second += deltaTime;
+    if (greenLightRoadEdge.second < 10.f) return;
 
-    if (outOfOrderVehicle == nullptr && simulationElapsedTime > 3.f)
+    if (greenLightRoadEdge.second < 13.f) {
+        roads[greenLightRoadEdge.first]->setTrafficLightColor(sf::Color::Yellow);
+        return;
+    }
+
+
+    roads[greenLightRoadEdge.first]->setTrafficLightColor(sf::Color::Red);
+
+    switch (greenLightRoadEdge.first) {
+        case RoadEdge::NORTH:
+            greenLightRoadEdge.first = RoadEdge::EAST;
+            break;
+        case RoadEdge::EAST:
+            greenLightRoadEdge.first = RoadEdge::SOUTH;
+            break;
+        case RoadEdge::SOUTH:
+            greenLightRoadEdge.first = RoadEdge::WEST;
+            break;
+        case RoadEdge::WEST:
+            greenLightRoadEdge.first = RoadEdge::NORTH;
+            break;
+    }
+
+    roads[greenLightRoadEdge.first]->setTrafficLightColor(sf::Color::Green);
+    greenLightRoadEdge.second -= 13.f;
+}
+
+void Simulation::adjustVehiclesSpeed(const std::vector<Vehicle *>& vehicles) {
+
+        for (auto flv_it = vehicles.begin(); flv_it != vehicles.end(); flv_it++) {
+        // Leading vehicle: allow it to maintain/increase speed
+        const float &elapsedTime = (*flv_it)->getElapsedTime();
+        if (flv_it == vehicles.begin()) {
+            if (elapsedTime >= 1.f) {
+                (*flv_it)->setElapsedTime(elapsedTime - 1.f);
+                // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
+                (*flv_it)->increaseSpeed(0.27778f * 8);  // for each 1m/s increase, increase by 1km/h using vf = vi + at
+            }
+            continue;
+        }
+
+        // For all other vehicles, ensure safe distance with the vehicle ahead
+        auto ahead_it = std::prev(flv_it);  // Vehicle ahead (closer to the front)
+        if (!Vehicle::areVehiclesAtSafeDistance(**flv_it, **ahead_it)) {
+            if ((*ahead_it)->getIsStopped())
+                (*flv_it)->setIsStopped(true);
+            else
+                (*flv_it)->setIsStopped(false);
+
+            (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed()));  // equal to the vehicle ahead
+            // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
+        } else if (elapsedTime >= 1.f) {
+            (*flv_it)->setElapsedTime(elapsedTime - 1.f);
+            // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
+            if (!(*flv_it)->getIsStopped())
+                (*flv_it)->increaseSpeed(0.27778f * 8);  // ncrease by 1km/h after each second
+        }
+    }
+}
+
+void Simulation::update(float deltaTime) {
+    if (outOfOrderVehicle == nullptr && simulationElapsedTime > 20.f)
         markRandomVehicleOutOfOrder();
+
+    updateTrafficLights(deltaTime);
 
     for (const auto &road : roads) {
         for (const auto &flv : road.second->getFastLaneVehicles()) {
@@ -179,38 +246,8 @@ void Simulation::update(float deltaTime) {
 
         road.second->removeLeftVehicles();
         road.second->updateTrafficLight(deltaTime);
-
-        const auto &fastLane = road.second->getFastLaneVehicles();
-
-        for (auto flv_it = fastLane.begin(); flv_it != fastLane.end(); flv_it++) {
-            // Leading vehicle: allow it to maintain/increase speed
-            const float &elapsedTime = (*flv_it)->getElapsedTime();
-            if (flv_it == fastLane.begin()) {
-                if (elapsedTime >= 1.f) {
-                    (*flv_it)->setElapsedTime(elapsedTime - 1.f);
-                    // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h = 1.3889m/s
-                    (*flv_it)->increaseSpeed(0.27778f * 8);  // for each 1m/s increase, increase by 1km/h using vf = vi + at
-                }
-                continue;  
-            }
-
-            // For all other vehicles, ensure safe distance with the vehicle ahead
-            auto ahead_it = std::prev(flv_it);  // Vehicle ahead (closer to the front)
-            if (!Vehicle::areVehiclesAtSafeDistance(**flv_it, **ahead_it)) {
-                if ((*ahead_it)->getIsStopped())
-                    (*flv_it)->setIsStopped(true);
-                else
-                    (*flv_it)->setIsStopped(false);
-                
-                (*flv_it)->decreaseSpeed(std::abs((*ahead_it)->getSpeed() - (*flv_it)->getSpeed()));  // equal to the vehicle ahead
-                // (*flv_it)->decreaseSpeed(1.3889f * 4); // Slow down by 2.5 km/h if too close
-            } else if (elapsedTime >= 1.f) {
-                (*flv_it)->setElapsedTime(elapsedTime - 1.f);
-                // (*flv_it)->increaseSpeed(1.3889f * 8); // 5km/h
-                if(!(*flv_it)->getIsStopped())
-                    (*flv_it)->increaseSpeed(0.27778f * 8);  // ncrease by 1km/h after each second
-            }
-        }
+        adjustVehiclesSpeed(road.second->getFastLaneVehicles());
+        adjustVehiclesSpeed(road.second->getSlowLaneVehicles());
     }
 }
 

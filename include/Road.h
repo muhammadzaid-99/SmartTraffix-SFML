@@ -38,6 +38,7 @@ public:
     void updateTrafficLight(float deltaTime);
 
     void removeLeftVehicles();
+    void setTrafficLightColor(sf::Color color);
 };
 
 #endif
